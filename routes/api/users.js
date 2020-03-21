@@ -5,7 +5,7 @@ const pool = new Pool({
     user: 'kommander',
     password: 'Kommander030500',
     host: 'localhost',
-    database: 'api',
+    database: 'multiverse',
     port: 5432
 });
 
@@ -65,12 +65,10 @@ const deleteUser = (req, res) => {
     })
 }
 
-
-
 router.get('/users/', (req, res) => getUsers(req, res));
 router.get('/users/:id', (req, res) => getUserById(req, res));
 router.post('/users/', (req, res) => createUser(req, res));
 router.put('/users/:id', (req, res) => updateUser(req, res));
-router.delete('/users/:id', (req, res) => deleteUser);
+router.delete('/users/:id', (req, res) => deleteUser(req, res));
 
 module.exports = router;

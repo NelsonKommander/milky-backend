@@ -5,12 +5,12 @@ const pool = new Pool({
     user: 'kommander',
     password: 'Kommander030500',
     host: 'localhost',
-    database: 'api',
+    database: 'multiverse',
     port: 5432
 });
 
 const authUser = (req, res) => {
-    /*const {email, password} = req.body;
+    const {email, password} = req.body;
     pool.query('SELECT * FROM users WHERE email = $1', [email], (error, result) => {
         if(error){
             throw error;
@@ -20,8 +20,7 @@ const authUser = (req, res) => {
         } else {
             res.status(200).send('true');
         }
-    });*/
-    res.status(200).send(true);
+    });
 }
 
 
