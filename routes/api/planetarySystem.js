@@ -1,16 +1,14 @@
 const router = require('express').Router({mergeParams: true});
-
-const Pool = require('pg').Pool;
-const pool = new Pool({
-    user: 'kommander',
-    password: 'Kommander030500',
-    host: 'localhost',
-    database: 'api',
-    port: 5432
+const { Client } = require('pg');
+const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
 });
+
+client.connect();
 // Lembrar de checar a criação e o update!!! A descrição da entidade no banco está errada!!!
 const getSystems = (req, res) => {
-    pool.query('SELECT * FROM planetarySystem ORDER BY systemId', (error, results) => {
+    client.query('SELECT * FROM planetarySystem ORDER BY systemId', (error, results) => {
         if (error){
             throw error;
         }
@@ -21,7 +19,7 @@ const getSystems = (req, res) => {
 const getSystemById = (req, res) => {
     const id = parseInt(req.params.id);
 
-    pool.query('SELECT * FROM planetarySystem WHERE systemId = $1', [id], (error, results) => {
+    client.query('SELECT * FROM planetarySystem WHERE systemId = $1', [id], (error, results) => {
         if (error){
             throw error;
         }
@@ -35,7 +33,7 @@ const createSystem = (req, res) => {
     const age = parseInt(req.params.age);
     const {name} = req.body;
 
-    pool.query('INSERT INTO planetarySystem (numOfPlanets, numOfStars, age, name) VALUES ($1, $2, $3, $4)', [numOfPlanets, numOfStars, age, name], 
+    client.query('INSERT INTO planetarySystem (numOfPlanets, numOfStars, age, name) VALUES ($1, $2, $3, $4)', [numOfPlanets, numOfStars, age, name], 
     (error, results) => {
         if (error){
             throw error;
@@ -51,7 +49,7 @@ const updateSystem = (req, res) => {
     const age = parseInt(req.params.age);
     const {name} = req.body;
 
-    pool.query('UPADATE planetarySystems SET name = $1, age = $2, numOfPlanets = $3, numOfStars = 4, WHERE systemId = $5', [name, age, numOfPlanets, numOfStars, systemId],
+    client.query('UPADATE planetarySystems SET name = $1, age = $2, numOfPlanets = $3, numOfStars = 4, WHERE systemId = $5', [name, age, numOfPlanets, numOfStars, systemId],
     (error, results) => {
         if (error){
             throw error;
@@ -63,7 +61,7 @@ const updateSystem = (req, res) => {
 const deleteSystem = (req, res) => {
     const systemId = parseInt(req.params.systemId);
 
-    pool.query('DELETE FROM planetarySystems WHERE systemId = $1' [systemId],
+    client.query('DELETE FROM planetarySystems WHERE systemId = $1' [systemId],
     (error, results) => {
         if (error){
             throw error;

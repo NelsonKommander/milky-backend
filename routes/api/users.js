@@ -1,16 +1,15 @@
 const router = require('express').Router({mergeParams: true});
 var bcrypt = require('bcryptjs');
-const Pool = require('pg').Pool;
-const pool = new Pool({
-    user: 'kommander',
-    password: 'Kommander030500',
-    host: 'localhost',
-    database: 'api',
-    port: 5432
+const { Client } = require('pg');
+const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
 });
 
+client.connect();
+
 const getUsers = (req, res) => {
-    pool.query('SELECT * FROM users ORDER BY user_id ASC', (error, results) => {
+    client.query('SELECT * FROM users ORDER BY user_id ASC', (error, results) => {
         if(error){
             throw error;
         }
@@ -21,7 +20,7 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
     const userId = parseInt(req.params.userId);
 
-    pool.query('SELECT * FROM users WHERE user_id = $1', [userId], (error, results) => {
+    client.query('SELECT * FROM users WHERE user_id = $1', [userId], (error, results) => {
         if(error){
             throw error;
         }
@@ -34,7 +33,7 @@ const createUser = (req, res) => {
     if (name != null && email != null && password != null){
         bcrypt.genSalt(10, function(err, salt) {
             bcrypt.hash(password, salt, function(err, hash) {
-                pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hash], (error, results) => {
+                client.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hash], (error, results) => {
                     if(error){
                        if (error.code == 23505){
                            res.status(401).send("Email is already in use!");
@@ -56,7 +55,7 @@ const updateUser = (req, res) => {
     const userId = parseInt(req.params.userId);
     const {name, email, password} = req.body;
 
-    pool.query('UPDATE users SET name = $1, email = $2, WHERE user_id = $3',
+    client.query('UPDATE users SET name = $1, email = $2, WHERE user_id = $3',
     [name, email, userId],
     (error, results) => {
         if(error){
@@ -69,7 +68,7 @@ const updateUser = (req, res) => {
 const deleteUser = (req, res) => {
     const id = parseInt(req.params.id);
 
-    pool.query('DELETE FROM users WHERE user_id = $1', [id], (error, results) => {
+    client.query('DELETE FROM users WHERE user_id = $1', [id], (error, results) => {
         if(error){
             throw error;
         }

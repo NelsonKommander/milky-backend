@@ -1,17 +1,17 @@
 const router = require('express').Router({mergeParams: true});
 var bcrypt = require('bcryptjs');
 const Pool = require('pg').Pool;
-const pool = new Pool({
-    user: 'kommander',
-    password: 'Kommander030500',
-    host: 'localhost',
-    database: 'api',
-    port: 5432
+const { Client } = require('pg');
+const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
 });
+
+client.connect();
 
 const authUser = (req, response) => {
     const {email, password} = req.body;
-    pool.query('SELECT * FROM users WHERE email = $1', [email], (error, result) => {
+    client.query('SELECT * FROM users WHERE email = $1', [email], (error, result) => {
         if (error){
             throw error;
         }

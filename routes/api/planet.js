@@ -1,16 +1,14 @@
 const router = require('express').Router({mergeParams: true});
-
-const Pool = require('pg').Pool;
-const pool = new Pool({
-    user: 'kommander',
-    password: 'Kommander030500',
-    host: 'localhost',
-    database: 'api',
-    port: 5432
+const { Client } = require('pg');
+const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
 });
 
+client.connect();
+
 const getPlanets = (req, res) => {
-    pool.query('SELECT * FROM planet ORDER BY planetId', (error, results) => {
+    client.query('SELECT * FROM planet ORDER BY planetId', (error, results) => {
         if (error){
             throw error;
         }
@@ -21,7 +19,7 @@ const getPlanets = (req, res) => {
 const getPlanetById = (req, res) => {
     const planetId = parseInt(req.params.planetId);
 
-    pool.query('SELECT * FROM planet WHERE planetId = $1', [planetId], (error, results) => {
+    client.query('SELECT * FROM planet WHERE planetId = $1', [planetId], (error, results) => {
         if (error){
             throw error;
         }
@@ -35,7 +33,7 @@ const createPlanet = (req, res) => {
     const rotationSpeed = parseInt(req.params.rotationSpeed);
     const {name, composition, hasSatelite} = req.body;
 
-    pool.query('INSERT INTO planet (name, composition, hasSatelite, size, weight, rotationSpeed) VALUES ($1, $2, $3, $4, $5, $6)', [name, composition, hasSatelite, size, weight, rotationSpeed], 
+    client.query('INSERT INTO planet (name, composition, hasSatelite, size, weight, rotationSpeed) VALUES ($1, $2, $3, $4, $5, $6)', [name, composition, hasSatelite, size, weight, rotationSpeed], 
     (error, results) => {
         if (error){
             throw error;
@@ -51,7 +49,7 @@ const updatePlanet = (req, res) => {
     const rotationSpeed = parseInt(req.params.rotationSpeed);
     const {name, composition, hasSatelite} = req.body;
 
-    pool.query('UPADATE planet SET name = $1, composition = $2, hasSatelite = $3, size = $4, weight = $5, rotationSpeed = $6 WHERE planetId = $7', [name, composition, hasSatelite, size, weight, rotationSpeed, planetId],
+    client.query('UPADATE planet SET name = $1, composition = $2, hasSatelite = $3, size = $4, weight = $5, rotationSpeed = $6 WHERE planetId = $7', [name, composition, hasSatelite, size, weight, rotationSpeed, planetId],
     (error, results) => {
         if (error){
             throw error;
@@ -63,7 +61,7 @@ const updatePlanet = (req, res) => {
 const deletePlanet = (req, res) => {
     const planetId = parseInt(req.params.planetId);
 
-    pool.query('DELETE FROM planet WHERE planetId = $1' [planetId],
+    client.query('DELETE FROM planet WHERE planetId = $1' [planetId],
     (error, results) => {
         if (error){
             throw error;

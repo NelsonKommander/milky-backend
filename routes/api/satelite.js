@@ -1,16 +1,14 @@
 const router = require('express').Router({mergeParams: true});
-
-const Pool = require('pg').Pool;
-const pool = new Pool({
-    user: 'kommander',
-    password: 'Kommander030500',
-    host: 'localhost',
-    database: 'api',
-    port: 5432
+const { Client } = require('pg');
+const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
 });
 
+client.connect();
+
 const getSatellites = (req, res) => {
-    pool.query('SELECT * FROM satellite ORDER BY satelliteId', (error, results) => {
+    client.query('SELECT * FROM satellite ORDER BY satelliteId', (error, results) => {
         if (error){
             throw error;
         }
@@ -21,7 +19,7 @@ const getSatellites = (req, res) => {
 const getSatelliteById = (req, res) => {
     const satelliteId = parseInt(req.params.satelite);
 
-    pool.query('SELECT * FROM satellite WHERE satelliteId = $1', [satelliteIdite], (error, results) => {
+    client.query('SELECT * FROM satellite WHERE satelliteId = $1', [satelliteIdite], (error, results) => {
         if (error){
             throw error;
         }
@@ -34,7 +32,7 @@ const createSatellite = (req, res) => {
     const weight = parseInt(req.params.weight);
     const {name, composition} = req.body;
 
-    pool.query('INSERT INTO satellite (name, composition, size, weight) VALUES ($1, $2, $3, $4)', [name, composition, size, weight], 
+    client.query('INSERT INTO satellite (name, composition, size, weight) VALUES ($1, $2, $3, $4)', [name, composition, size, weight], 
     (error, results) => {
         if (error){
             throw error;
@@ -49,7 +47,7 @@ const updateSatellite = (req, res) => {
     const weight = parseInt(req.params.weight);
     const {name, composition, hasSatelite} = req.body;
 
-    pool.query('UPADATE satellite SET name = $1, composition = $2, size = $3, weight = $4, WHERE satelliteId = $5', [name, composition, size, weight, satelliteId],
+    client.query('UPADATE satellite SET name = $1, composition = $2, size = $3, weight = $4, WHERE satelliteId = $5', [name, composition, size, weight, satelliteId],
     (error, results) => {
         if (error){
             throw error;
@@ -61,7 +59,7 @@ const updateSatellite = (req, res) => {
 const deleteSatellite = (req, res) => {
     const satelliteId = parseInt(req.params.satelliteId);
 
-    pool.query('DELETE FROM satellite WHERE satelliteId = $1' [satelliteId],
+    client.query('DELETE FROM satellite WHERE satelliteId = $1' [satelliteId],
     (error, results) => {
         if (error){
             throw error;
