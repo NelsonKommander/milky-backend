@@ -30,20 +30,26 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-    console.log(req.body);
     const {name, email, password} = req.body;
-    console.log(`Nome: ${name}, Email: ${email}, Senha: ${password}`);
-
-    bcrypt.genSalt(10, function(err, salt) {
-        bcrypt.hash(password, salt, function(err, hash) {
-            pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hash], (error, results) => {
-                if(error){
-                    throw error;
-                }
-                res.status(201).send(`User added with ID: ${results.insertID}`);
+    if (name != null && email != null && password != null){
+        bcrypt.genSalt(10, function(err, salt) {
+            bcrypt.hash(password, salt, function(err, hash) {
+                pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hash], (error, results) => {
+                    if(error){
+                       if (error.code == 23505){
+                           res.status(401).send("Email is already in use!");
+                       } else {
+                            throw error;
+                       }
+                    } else {
+                        res.status(201).send(`User added with ID: ${results.insertID}`);
+                    }
+                });
             });
         });
-    });
+    } else {
+        res.status(401).send("Invalid user information!");
+    }
 };
 
 const updateUser = (req, res) => {
