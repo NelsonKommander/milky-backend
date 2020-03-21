@@ -1,16 +1,16 @@
 const router = require('express').Router({mergeParams: true});
-
+var bcrypt = require('bcryptjs');
 const Pool = require('pg').Pool;
 const pool = new Pool({
     user: 'kommander',
     password: 'Kommander030500',
     host: 'localhost',
-    database: 'multiverse',
+    database: 'api',
     port: 5432
 });
 
 const getUsers = (req, res) => {
-    pool.query('SELECT * FROM users ORDER BY id ASC', (error, results) => {
+    pool.query('SELECT * FROM users ORDER BY user_id ASC', (error, results) => {
         if(error){
             throw error;
         }
@@ -19,50 +19,56 @@ const getUsers = (req, res) => {
 };
 
 const getUserById = (req, res) => {
-    const id = parseInt(req.params.id);
+    const userId = parseInt(req.params.userId);
 
-    pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
+    pool.query('SELECT * FROM users WHERE user_id = $1', [userId], (error, results) => {
         if(error){
             throw error;
         }
         res.status(200).json(results.rows);
-    })
-}
+    });
+};
 
 const createUser = (req, res) => {
-    const {name, email} = req.body;
+    console.log(req.body);
+    const {name, email, password} = req.body;
+    console.log(`Nome: ${name}, Email: ${email}, Senha: ${password}`);
 
-    pool.query('INSERT INTO users (name, email) VALUES ($1, $2)', [name, email], (error, results) => {
-        if(error){
-            throw error;
-        }
-        res.status(201).send(`User added with ID: ${result.insertID}`);
-    })
+    bcrypt.genSalt(10, function(err, salt) {
+        bcrypt.hash(password, salt, function(err, hash) {
+            pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hash], (error, results) => {
+                if(error){
+                    throw error;
+                }
+                res.status(201).send(`User added with ID: ${results.insertID}`);
+            });
+        });
+    });
 };
 
 const updateUser = (req, res) => {
-    const id = parseInt(req.params.id);
-    const {name, email} = req.body;
+    const userId = parseInt(req.params.userId);
+    const {name, email, password} = req.body;
 
-    pool.query('UPDATE users SET name = $1, email = $2, WHERE id = $3',
-    [name, email, id],
+    pool.query('UPDATE users SET name = $1, email = $2, WHERE user_id = $3',
+    [name, email, userId],
     (error, results) => {
         if(error){
             throw error;
         }
-        res.status(200).send(`User modified with ID: ${id}`);
+        res.status(200).send(`User modified with ID: ${userId}`);
     });
 };
 
 const deleteUser = (req, res) => {
     const id = parseInt(req.params.id);
 
-    pool.query('DELETE FROM users WHERE id = $1', [id], (error, results) => {
+    pool.query('DELETE FROM users WHERE user_id = $1', [id], (error, results) => {
         if(error){
             throw error;
         }
-        res.status(200).send(`User deleted with ID: ${id}`)
-    })
+        res.status(200).send(`User deleted with ID: ${id}`);
+    });
 }
 
 router.get('/users/', (req, res) => getUsers(req, res));
