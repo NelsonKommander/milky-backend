@@ -6,9 +6,9 @@ const client = new Client({
 });
 
 client.connect();
-// Lembrar de checar a criação e o update!!! A descrição da entidade no banco está errada!!!
+
 const getSystems = (req, res) => {
-    client.query('SELECT * FROM planetarySystem ORDER BY systemId', (error, results) => {
+    client.query('SELECT * FROM planetarySystem ORDER BY system_id', (error, results) => {
         if (error){
             throw error;
         }
@@ -18,7 +18,7 @@ const getSystems = (req, res) => {
 
 const getSystemById = (req, res) => {
     const id = parseInt(req.params.id);
-
+    var system = {"systemId": id, "name": "", "age": 0, "numOfPlanets": 0, "numOfStars": 0, "planets": {}, "stars": {}};
     client.query('SELECT * FROM planetarySystem WHERE systemId = $1', [id], (error, results) => {
         if (error){
             throw error;
@@ -38,12 +38,12 @@ const createSystem = (req, res) => {
         if (error){
             throw error;
         }
-        res.status(201).send(`Planetary System added with Id: ${result.insertID}`);
+        res.status(201).send(`Planetary System added with Id: ${result.oid}`);
     });
 };
 
 const updateSystem = (req, res) => {
-    const systemId = parseInt(req.params.systemId);
+    const systemId = parseInt(req.params.id);
     const numOfPlanets = parseInt(req.params.numOfPlanets);
     const numOfStars = parseInt(req.params.numOfStars);
     const age = parseInt(req.params.age);
@@ -59,7 +59,7 @@ const updateSystem = (req, res) => {
 };
 
 const deleteSystem = (req, res) => {
-    const systemId = parseInt(req.params.systemId);
+    const systemId = parseInt(req.params.id);
 
     client.query('DELETE FROM planetarySystems WHERE systemId = $1' [systemId],
     (error, results) => {

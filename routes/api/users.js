@@ -30,7 +30,7 @@ const getUserById = (req, res) => {
 
 const createUser = (req, res) => {
     const {name, email, password} = req.body;
-    if (name != null && email != null && password != null){
+    if (name != null && email != null && password != null && password != ""){
         bcrypt.genSalt(10, function(err, salt) {
             bcrypt.hash(password, salt, function(err, hash) {
                 client.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hash], (error, results) => {
@@ -41,7 +41,7 @@ const createUser = (req, res) => {
                             throw error;
                        }
                     } else {
-                        res.status(201).send(`User added with ID: ${results.insertID}`);
+                        res.status(201).send(`User added with ID: ${results.oid}`);
                     }
                 });
             });
@@ -54,15 +54,22 @@ const createUser = (req, res) => {
 const updateUser = (req, res) => {
     const userId = parseInt(req.params.userId);
     const {name, email, password} = req.body;
-
-    client.query('UPDATE users SET name = $1, email = $2, WHERE user_id = $3',
-    [name, email, userId],
-    (error, results) => {
-        if(error){
-            throw error;
-        }
-        res.status(200).send(`User modified with ID: ${userId}`);
-    });
+    if (name != null && email != null && password != null && password != ""){
+        bcrypt.genSalt(10, function(err, salt){
+            bcrypt.hash(password, salt, function(err, hash){
+                client.query('UPDATE users SET name = $1, email = $2, password = $3 WHERE user_id = $4',
+                [name, email, hash, userId],
+                (error, results) => {
+                    if(error){
+                        throw error;
+                    }
+                    res.status(200).send(`User modified with ID: ${userId}`);
+                });
+            });
+        });
+    } else {
+        res.status(401).send("Invalid input data!");
+    }
 };
 
 const deleteUser = (req, res) => {

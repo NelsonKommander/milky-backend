@@ -1,6 +1,5 @@
 const router = require('express').Router({mergeParams: true});
 var bcrypt = require('bcryptjs');
-const Pool = require('pg').Pool;
 const { Client } = require('pg');
 const client = new Client({
     connectionString: process.env.DATABASE_URL,
