@@ -6,9 +6,10 @@ const client = new Client({
 });
 
 client.connect();
-// Lembrar de checar a criação e o update!!! A descrição da entidade no banco está errada!!!
+
 const getGalaxy = (req, res) => {
-    client.query('SELECT * FROM galaxy ORDER BY galaxyId', (error, results) => {
+    client.query('SELECT * FROM galaxy ORDER BY galaxy_id',
+    (error, results) => {
         if (error){
             throw error;
         }
@@ -17,54 +18,88 @@ const getGalaxy = (req, res) => {
 };
 
 const getGalaxyById = (req, res) => {
-    const galaxyId = parseInt(req.params.galaxyId);
-
-    client.query('SELECT * FROM galaxy WHERE galaxyId = $1', [galaxyId], (error, results) => {
+    const galaxyId = parseInt(req.params.id);
+    var galaxy = {"galaxyId": galaxyId,"name": "", "numOfSystems": 0, "earthDistance": 0, "systems" : {}};
+    client.query('SELECT * FROM galaxy WHERE galaxy_id = $1', [galaxyId], (error, results) => {
         if (error){
             throw error;
         }
-        res.status(200).json(results.rows);
+        galaxy.name = results.rows[0].name;
+        galaxy.numOfSystems = results.rows[0].num_of_systems;
+        galaxy.earthDistance = results.rows[0].earth_distance;
+    });
+    client.query('SELECT p.system_id, p.galaxy_id, p.num_of_planets, p.num_of_stars, p.age, p.name FROM galaxy AS g JOIN planetarysystem AS p ON (g.galaxy_id = p.galaxy_id) WHERE g.galaxy_id = $1',
+    [galaxyId],
+    (error, results) => {
+        if (error){
+            throw error;
+        }
+        galaxy.systems = results.rows;
+        res.status(200).send(galaxy);
     });
 };
 
 const createGalaxy = (req, res) => {
-    const numOfSystems = parseInt(req.params.numOfSystems);
-    const earthDistance = parseInt(req.params.earthDistance);
+    let numOfSystems = parseInt(req.body.numOfSystems);
+    let earthDistance = parseInt(req.body.earthDistance);
     const {name} = req.body;
 
-    client.query('INSERT INTO galaxy (numOfSystems, earthDistance, name) VALUES ($1, $2, $3, )', [numOfSystems, earthDistance, name], 
-    (error, results) => {
+    if (isNaN(numOfSystems)){
+        numOfSystems = null;
+    }
+    if (isNaN(earthDistance)){
+        earthDistance = null;
+    }
+
+    if (name != null){
+        client.query('INSERT INTO galaxy (num_of_systems, earth_distance, name) VALUES ($1, $2, $3)',
+        [numOfSystems, earthDistance, name], 
+        (error, results) => {
         if (error){
             throw error;
         }
-        res.status(201).send(`Galaxy added with Id: ${result.insertID}`);
+        res.status(201).send(`Galaxy added with Id: ${results.oid}`);
     });
+    } else {
+        res.status(401).send("Name cannot be null!");
+    }
 };
 
 const updateGalaxy = (req, res) => {
-    const galaxyId = parseInt(req.params.galaxyId);
-    const numOfSystems = parseInt(req.params.numOfSystems);
-    const earthDistance = parseInt(req.params.earthDistance);
+    const galaxyId = parseInt(req.params.id);
+    let numOfSystems = parseInt(req.body.numOfSystems);
+    let earthDistance = parseInt(req.body.earthDistance);
     const {name} = req.body;
 
-    client.query('UPADATE galaxy SET name = $1, numOfSystems = $2, earthDistance = $3, WHERE galaxyId = $4', [name, numOfSystems, earthDistance, galaxyId],
-    (error, results) => {
-        if (error){
-            throw error;
-        }
-        res.status(200).send(`Galaxy with id ${galaxyId} modified`);
-    });
+    if (isNaN(numOfSystems)){
+        numOfSystems = null;
+    }
+    if (isNaN(earthDistance)){
+        earthDistance = null;
+    }
+
+    if (name != null){
+        client.query('UPDATE galaxy SET name = $1, num_of_systems = $2, earth_distance = $3 WHERE galaxy_id = $4',
+        [name, numOfSystems, earthDistance, galaxyId],
+        (error, results) => {
+            if (error){
+                throw error;
+            }
+            res.status(200).send(`Galaxy with id ${galaxyId} modified`);
+        });
+    } else {
+        res.status(401).send("Name cannot be null!");
+    }
 };
 
 const deleteGalaxy = (req, res) => {
-    const galaxyId = parseInt(req.params.galaxyId);
+    const galaxyId = parseInt(req.params.id);
 
-    client.query('DELETE FROM galaxy WHERE galaxyId = $1' [galaxyId],
-    (error, results) => {
-        if (error){
+    client.query('DELETE FROM galaxy WHERE galaxy_id = $1', [galaxyId], (error, results) => {
+        if(error){
             throw error;
         }
-        res.status(200).send(`Galaxy with id ${galaxyId} is no mo!`);
+        res.status(200).send(`Galaxy deleted with ID: ${galaxyId}`);
     });
 };
 

@@ -8,7 +8,7 @@ const client = new Client({
 client.connect();
 
 const getPlanets = (req, res) => {
-    client.query('SELECT * FROM planet ORDER BY planetId', (error, results) => {
+    client.query('SELECT * FROM planet ORDER BY planet_id', (error, results) => {
         if (error){
             throw error;
         }
@@ -17,51 +17,113 @@ const getPlanets = (req, res) => {
 };
 
 const getPlanetById = (req, res) => {
-    const planetId = parseInt(req.params.planetId);
-
-    client.query('SELECT * FROM planet WHERE planetId = $1', [planetId], (error, results) => {
+    const planetId = parseInt(req.params.id);
+    var planet = {"planetId": planetId, "name": "", "composition": "", "size": 0, "weight": 0, "rotationSpeed": 0, "hasSatellite": false, "systems": [], "stars": [], "satellites": []};
+    client.query('SELECT * FROM planet WHERE planet_id = $1', [planetId], (error, results) => {
         if (error){
             throw error;
         }
-        res.status(200).json(results.rows);
+        planet.name = results.rows[0].name;
+        planet.composition = results.rows[0].composition;
+        planet.size = results.rows[0].size;
+        planet.weight = results.rows[0].weight;
+        planet.rotationSpeed = results.rows[0].rotation_speed;
+        planet.hasSatellite = results.rows[0].has_satellite;
     });
+    // Query dos sistemas
+    client.query('SELECT ps.name, ps.system_id, ps.age, ps.num_of_stars, ps.num_of_planets FROM planet AS p JOIN (planet_in_system AS pin JOIN planetarysystem AS ps USING (system_id)) USING (planet_id) WHERE planet_id = $1',
+    [planetId],
+    (error, results) => {
+        if (error){
+            throw error;
+        }
+        planet.systems = results.rows;
+    });
+    // Query das estrelas
+    client.query('SELECT s.name, s.star_id, s.startype, s.size, s.age, s.earth_distance, s.has_satellite, s.is_blackhole, s.is_dead FROM star AS s JOIN (planet_star AS ps JOIN planet AS p USING(planet_id)) USING(star_id) WHERE planet_id = $1',
+    [planetId],
+    (error, results) => {
+        if (error){
+            throw error;
+        }
+        planet.stars = results.rows;
+    });
+    // Query dos satellites
+    client.query('SELECT s.name, s.satellite_id, s.composition, s.size, s.weight FROM planet AS p JOIN (satellite_planet AS sp JOIN satellite AS s USING (satellite_id)) USING (planet_id) WHERE planet_id = $1',
+    [planetId],
+    (error, results) => {
+        if (error){
+            throw error;
+        }
+        planet.satellites = results.rows;
+        res.status(200).send(planet);
+    })
 };
 
 const createPlanet = (req, res) => {
-    const size = parseInt(req.params.size);
-    const weight = parseInt(req.params.weight);
-    const rotationSpeed = parseInt(req.params.rotationSpeed);
-    const {name, composition, hasSatelite} = req.body;
+    let size = parseInt(req.body.size);
+    let weight = parseInt(req.body.weight);
+    let rotationSpeed = parseInt(req.body.rotationSpeed);
+    const {name, composition, hasSatellite} = req.body;
 
-    client.query('INSERT INTO planet (name, composition, hasSatelite, size, weight, rotationSpeed) VALUES ($1, $2, $3, $4, $5, $6)', [name, composition, hasSatelite, size, weight, rotationSpeed], 
-    (error, results) => {
-        if (error){
-            throw error;
-        }
-        res.status(201).send(`Planet added with Id: ${result.insertID}`);
-    });
+    if (isNaN(size)){
+        size = -1;
+    }
+    if (isNaN(weight)){
+        weight = -1;
+    }
+    if (isNaN(rotationSpeed)){
+        rotationSpeed = -1;
+    }
+    if (name != null){
+        client.query('INSERT INTO planet (name, composition, has_satellite, size, weight, rotation_speed) VALUES ($1, $2, $3, $4, $5, $6)',
+        [name, composition, hasSatellite, size, weight, rotationSpeed], 
+        (error, results) => {
+            if (error){
+                throw error;
+            }
+            res.status(201).send(`Planet added with Id: ${result.oid}`);
+        });
+    } else {
+        res.status(401).send("Name cannot be null!");
+    }
 };
 
 const updatePlanet = (req, res) => {
-    const planetId = parseInt(req.params.planetId);
-    const size = parseInt(req.params.size);
-    const weight = parseInt(req.params.weight);
-    const rotationSpeed = parseInt(req.params.rotationSpeed);
-    const {name, composition, hasSatelite} = req.body;
+    const planetId = parseInt(req.params.id);
+    let size = parseInt(req.body.size);
+    let weight = parseInt(req.body.weight);
+    let rotationSpeed = parseInt(req.body.rotationSpeed);
+    const {name, composition, hasSatellite} = req.body;
 
-    client.query('UPADATE planet SET name = $1, composition = $2, hasSatelite = $3, size = $4, weight = $5, rotationSpeed = $6 WHERE planetId = $7', [name, composition, hasSatelite, size, weight, rotationSpeed, planetId],
-    (error, results) => {
-        if (error){
-            throw error;
-        }
-        res.status(200).send(`Planet with id ${planetId} modified`);
-    });
+    if (isNaN(size)){
+        size = null;
+    }
+    if (isNaN(weight)){
+        weight = null;
+    }
+    if (isNaN(rotationSpeed)){
+        rotationSpeed = null;
+    }
+    if (name != null){
+        client.query('UPADATE planet SET name = $1, composition = $2, has_satellite = $3, size = $4, weight = $5, rotation_speed = $6 WHERE planet_id = $7',
+        [name, composition, hasSatellite, size, weight, rotationSpeed, planetId],
+        (error, results) => {
+            if (error){
+                throw error;
+            }
+            res.status(200).send(`Planet with id ${planetId} modified`);
+        });
+    } else {
+        res.send(401).send("Name cannot be null!");
+    }
 };
 
 const deletePlanet = (req, res) => {
     const planetId = parseInt(req.params.planetId);
 
-    client.query('DELETE FROM planet WHERE planetId = $1' [planetId],
+    client.query('DELETE FROM planet WHERE planet_id = $1',
+    [planetId],
     (error, results) => {
         if (error){
             throw error;
