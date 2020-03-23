@@ -74,7 +74,7 @@ const createSystem = (req, res) => {
             if (error){
                 throw error;
             }
-            res.status(201).send(`Planetary System added with Id: ${results.oid}`);
+            res.status(201).send("Planetary System added sucessfully!");
         });
     } else {
         res.status(401).send("Name or galaxyId cannot be null!");

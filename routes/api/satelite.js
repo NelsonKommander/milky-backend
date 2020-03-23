@@ -53,8 +53,8 @@ const getSatelliteById = (req, res) => {
 };
 
 const createSatellite = (req, res) => {
-    let size = parseInt(req.body.size);
-    let weight = parseInt(req.body.weight);
+    let size = parseFloat(req.body.size);
+    let weight = parseFloat(req.body.weight);
     const {name, composition} = req.body;
 
     if (isNaN(size)){
@@ -70,7 +70,7 @@ const createSatellite = (req, res) => {
             if (error){
                 throw error;
             }
-            res.status(201).send(`Satellite added with Id: ${results.oid}`);
+            res.status(201).send("Satellite added sucessfully!");
         });
     } else {
         res.send(401).send("Name cannot be null!");
@@ -79,8 +79,8 @@ const createSatellite = (req, res) => {
 
 const updateSatellite = (req, res) => {
     const satelliteId = parseInt(req.params.id);
-    let size = parseInt(req.body.size);
-    let weight = parseInt(req.body.weight);
+    let size = parseFloat(req.body.size);
+    let weight = parseFloat(req.body.weight);
     const {name, composition} = req.body;
 
     if (isNaN(size)){

@@ -41,7 +41,7 @@ const getGalaxyById = (req, res) => {
 
 const createGalaxy = (req, res) => {
     let numOfSystems = parseInt(req.body.numOfSystems);
-    let earthDistance = parseInt(req.body.earthDistance);
+    let earthDistance = parseFloat(req.body.earthDistance);
     const {name} = req.body;
 
     if (isNaN(numOfSystems)){
@@ -58,7 +58,7 @@ const createGalaxy = (req, res) => {
         if (error){
             throw error;
         }
-        res.status(201).send(`Galaxy added with Id: ${results.oid}`);
+        res.status(201).send("Galaxy added sucessfully!");
     });
     } else {
         res.status(401).send("Name cannot be null!");
@@ -68,7 +68,7 @@ const createGalaxy = (req, res) => {
 const updateGalaxy = (req, res) => {
     const galaxyId = parseInt(req.params.id);
     let numOfSystems = parseInt(req.body.numOfSystems);
-    let earthDistance = parseInt(req.body.earthDistance);
+    let earthDistance = parseFloat(req.body.earthDistance);
     const {name} = req.body;
 
     if (isNaN(numOfSystems)){

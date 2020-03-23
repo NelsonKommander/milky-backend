@@ -61,9 +61,9 @@ const getPlanetById = (req, res) => {
 };
 
 const createPlanet = (req, res) => {
-    let size = parseInt(req.body.size);
-    let weight = parseInt(req.body.weight);
-    let rotationSpeed = parseInt(req.body.rotationSpeed);
+    let size = parseFloat(req.body.size);
+    let weight = parseFloat(req.body.weight);
+    let rotationSpeed = parseFloat(req.body.rotationSpeed);
     const {name, composition, hasSatellite} = req.body;
 
     if (isNaN(size)){
@@ -82,7 +82,7 @@ const createPlanet = (req, res) => {
             if (error){
                 throw error;
             }
-            res.status(201).send(`Planet added with Id: ${result.oid}`);
+            res.status(201).send("Planet added sucessfully!");
         });
     } else {
         res.status(401).send("Name cannot be null!");
@@ -91,9 +91,9 @@ const createPlanet = (req, res) => {
 
 const updatePlanet = (req, res) => {
     const planetId = parseInt(req.params.id);
-    let size = parseInt(req.body.size);
-    let weight = parseInt(req.body.weight);
-    let rotationSpeed = parseInt(req.body.rotationSpeed);
+    let size = parseFloat(req.body.size);
+    let weight = parseFloat(req.body.weight);
+    let rotationSpeed = parseFloat(req.body.rotationSpeed);
     const {name, composition, hasSatellite} = req.body;
 
     if (isNaN(size)){
