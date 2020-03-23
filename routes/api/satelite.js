@@ -90,7 +90,7 @@ const updateSatellite = (req, res) => {
         weight = null;
     }
     if (name != null){
-        client.query('UPDATE satellite SET name = $1, composition = $2, size = $3, weight = $4, WHERE satellite_id = $5',
+        client.query('UPDATE satellite SET name = $1, composition = $2, size = $3, weight = $4 WHERE satellite_id = $5',
         [name, composition, size, weight, satelliteId],
         (error, results) => {
             if (error){
