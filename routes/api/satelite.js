@@ -70,7 +70,7 @@ const createSatellite = (req, res) => {
             if (error){
                 throw error;
             }
-            res.status(201).send(`Satellite added with Id: ${results.oid}`);
+            res.status(201).send("Satellite added sucessfully!");
         });
     } else {
         res.send(401).send("Name cannot be null!");

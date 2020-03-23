@@ -84,7 +84,7 @@ const createStar = (req, res) => {
             if (error){
                 throw error;
             }
-            res.status(201).send(`Star added with Id: ${results.oid}`);
+            res.status(201).send("Star added sucessfully!");
         });
         } else {
             res.status(401).send("Something that shouldn't be null is!");

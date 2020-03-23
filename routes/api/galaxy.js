@@ -58,7 +58,7 @@ const createGalaxy = (req, res) => {
         if (error){
             throw error;
         }
-        res.status(201).send(`Galaxy added with Id: ${results.oid}`);
+        res.status(201).send("Galaxy added sucessfully!");
     });
     } else {
         res.status(401).send("Name cannot be null!");

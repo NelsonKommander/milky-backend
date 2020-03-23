@@ -82,7 +82,7 @@ const createPlanet = (req, res) => {
             if (error){
                 throw error;
             }
-            res.status(201).send(`Planet added with Id: ${result.oid}`);
+            res.status(201).send("Planet added sucessfully!");
         });
     } else {
         res.status(401).send("Name cannot be null!");
