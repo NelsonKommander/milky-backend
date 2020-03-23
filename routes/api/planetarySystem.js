@@ -18,50 +18,105 @@ const getSystems = (req, res) => {
 
 const getSystemById = (req, res) => {
     const id = parseInt(req.params.id);
-    var system = {"systemId": id, "name": "", "age": 0, "numOfPlanets": 0, "numOfStars": 0, "planets": {}, "stars": {}};
-    client.query('SELECT * FROM planetarySystem WHERE systemId = $1', [id], (error, results) => {
+    var system = {"systemId": id, "name": "", "age": 0, "numOfPlanets": 0, "numOfStars": 0, "planets": [], "stars": []};
+    client.query('SELECT * FROM planetarySystem WHERE system_id = $1',
+    [id],
+    (error, results) => {
         if (error){
             throw error;
         }
-        res.status(200).json(results.rows);
+        system.name = results.rows[0].name;
+        system.age = results.rows[0].age;
+        system.numOfPlanets = results.rows[0].num_of_planets;
+        system.numOfStars = results.rows[0].numOfStars;
+    });
+    // Query dos planetas
+    client.query('SELECT p.planet_id, p.size, p.weight, p.rotation_speed, p.has_satellite, p.name, p.composition FROM planet AS p JOIN (planet_in_system AS pin JOIN planetarysystem AS ps USING (system_id)) USING (planet_id) WHERE system_id = $1',
+    [id],
+    (error, results) => {
+        if (error){
+            throw error;
+        }
+        system.planets = results.rows;
+    });
+    // Query das estrelas
+    client.query('SELECT s.star_id, s.name, s.startype, s.size, s.age, s.earth_distance, s.has_satellite, s.is_blackhole, s.is_dead FROM star AS s JOIN (star_in_system AS sin JOIN planetarysystem AS ps USING(system_id)) USING(star_id) WHERE system_id = $1',
+    [id],
+    (error, results) => {
+        if (error){
+            throw error;
+        }
+        system.stars = results.rows;
+        res.status(200).send(system);
     });
 };
 
 const createSystem = (req, res) => {
-    const numOfPlanets = parseInt(req.params.numOfPlanets);
-    const numOfStars = parseInt(req.params.numOfStars);
-    const age = parseInt(req.params.age);
+    let numOfPlanets = parseInt(req.body.numOfPlanets);
+    let numOfStars = parseInt(req.body.numOfStars);
+    let age = parseInt(req.body.age);
+    const galaxyId = parseInt(req.body.galaxyId);
     const {name} = req.body;
 
-    client.query('INSERT INTO planetarySystem (numOfPlanets, numOfStars, age, name) VALUES ($1, $2, $3, $4)', [numOfPlanets, numOfStars, age, name], 
-    (error, results) => {
-        if (error){
-            throw error;
-        }
-        res.status(201).send(`Planetary System added with Id: ${result.oid}`);
-    });
+    if (isNaN(numOfPlanets)){
+        numOfPlanets = null;
+    }
+    if (isNaN(numOfStars)){
+        numOfStars = null;
+    }
+    if (isNaN(age)){
+        age = null;
+    }
+    if (name != null && !isNaN(galaxyId)){
+        client.query('INSERT INTO planetarySystem (num_of_planets, num_of_stars, age, name, galaxy_id) VALUES ($1, $2, $3, $4, $5)',
+        [numOfPlanets, numOfStars, age, name, galaxyId], 
+        (error, results) => {
+            if (error){
+                throw error;
+            }
+            res.status(201).send(`Planetary System added with Id: ${results.oid}`);
+        });
+    } else {
+        res.status(401).send("Name or galaxyId cannot be null!");
+    }
 };
 
 const updateSystem = (req, res) => {
     const systemId = parseInt(req.params.id);
-    const numOfPlanets = parseInt(req.params.numOfPlanets);
-    const numOfStars = parseInt(req.params.numOfStars);
-    const age = parseInt(req.params.age);
+    let numOfPlanets = parseInt(req.body.numOfPlanets);
+    let numOfStars = parseInt(req.body.numOfStars);
+    let age = parseInt(req.body.age);
+    const galaxyId = parseInt(req.body.galaxyId);
     const {name} = req.body;
 
-    client.query('UPADATE planetarySystems SET name = $1, age = $2, numOfPlanets = $3, numOfStars = 4, WHERE systemId = $5', [name, age, numOfPlanets, numOfStars, systemId],
-    (error, results) => {
-        if (error){
-            throw error;
-        }
-        res.status(200).send(`System with id ${systemId} modified`);
-    });
+    if (isNaN(numOfPlanets)){
+        numOfPlanets = null;
+    }
+    if (isNaN(numOfStars)){
+        numOfStars = null;
+    }
+    if (isNaN(age)){
+        age = null;
+    }
+    if (name != null && !isNaN(galaxyId)){
+        client.query('UPDATE planetarySystem SET name = $1, age = $2, num_of_planets = $3, num_of_stars = $4 WHERE system_id = $5',
+        [name, age, numOfPlanets, numOfStars, systemId],
+        (error, results) => {
+            if (error){
+                throw error;
+            }
+            res.status(200).send(`System with id ${systemId} modified`);
+        });
+    } else {
+        res.status(401).send("Name cannot be null!");
+    }
 };
 
 const deleteSystem = (req, res) => {
     const systemId = parseInt(req.params.id);
 
-    client.query('DELETE FROM planetarySystems WHERE systemId = $1' [systemId],
+    client.query('DELETE FROM planetarySystem WHERE system_id = $1',
+    [systemId],
     (error, results) => {
         if (error){
             throw error;

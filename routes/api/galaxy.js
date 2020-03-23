@@ -24,9 +24,9 @@ const getGalaxyById = (req, res) => {
         if (error){
             throw error;
         }
-        galaxy["name"] = results.rows[0].name;
-        galaxy["numOfSystems"] = results.rows[0].num_of_systems;
-        galaxy["earthDistance"] = results.rows[0].earth_distance;
+        galaxy.name = results.rows[0].name;
+        galaxy.numOfSystems = results.rows[0].num_of_systems;
+        galaxy.earthDistance = results.rows[0].earth_distance;
     });
     client.query('SELECT p.system_id, p.galaxy_id, p.num_of_planets, p.num_of_stars, p.age, p.name FROM galaxy AS g JOIN planetarysystem AS p ON (g.galaxy_id = p.galaxy_id) WHERE g.galaxy_id = $1',
     [galaxyId],
@@ -34,15 +34,23 @@ const getGalaxyById = (req, res) => {
         if (error){
             throw error;
         }
-        galaxy["systems"] = results.rows;
+        galaxy.systems = results.rows;
         res.status(200).send(galaxy);
     });
 };
 
 const createGalaxy = (req, res) => {
-    const numOfSystems = parseInt(req.body.numOfSystems);
-    const earthDistance = parseInt(req.body.earthDistance);
+    let numOfSystems = parseInt(req.body.numOfSystems);
+    let earthDistance = parseInt(req.body.earthDistance);
     const {name} = req.body;
+
+    if (isNaN(numOfSystems)){
+        numOfSystems = null;
+    }
+    if (isNaN(earthDistance)){
+        earthDistance = null;
+    }
+
     if (name != null){
         client.query('INSERT INTO galaxy (num_of_systems, earth_distance, name) VALUES ($1, $2, $3)',
         [numOfSystems, earthDistance, name], 
@@ -59,9 +67,17 @@ const createGalaxy = (req, res) => {
 
 const updateGalaxy = (req, res) => {
     const galaxyId = parseInt(req.params.id);
-    const numOfSystems = parseInt(req.body.numOfSystems);
-    const earthDistance = parseInt(req.body.earthDistance);
+    let numOfSystems = parseInt(req.body.numOfSystems);
+    let earthDistance = parseInt(req.body.earthDistance);
     const {name} = req.body;
+
+    if (isNaN(numOfSystems)){
+        numOfSystems = null;
+    }
+    if (isNaN(earthDistance)){
+        earthDistance = null;
+    }
+
     if (name != null){
         client.query('UPDATE galaxy SET name = $1, num_of_systems = $2, earth_distance = $3 WHERE galaxy_id = $4',
         [name, numOfSystems, earthDistance, galaxyId],

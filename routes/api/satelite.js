@@ -8,7 +8,8 @@ const client = new Client({
 client.connect();
 
 const getSatellites = (req, res) => {
-    client.query('SELECT * FROM satellite ORDER BY satelliteId', (error, results) => {
+    client.query('SELECT * FROM satellite ORDER BY satellite_id',
+    (error, results) => {
         if (error){
             throw error;
         }
@@ -17,49 +18,96 @@ const getSatellites = (req, res) => {
 };
 
 const getSatelliteById = (req, res) => {
-    const satelliteId = parseInt(req.params.satelite);
-
-    client.query('SELECT * FROM satellite WHERE satelliteId = $1', [satelliteIdite], (error, results) => {
+    const satelliteId = parseInt(req.params.id);
+    var satellite = {"satelliteId": satelliteId, "name": "", "composition": "", "size": 0, "weight": 0, "planets": [], "stars": []};
+    client.query('SELECT * FROM satellite WHERE satellite_id = $1',
+    [satelliteId],
+    (error, results) => {
         if (error){
             throw error;
         }
-        res.status(200).json(results.rows);
+        satellite.name = results.rows[0].name;
+        satellite.composition = results.rows[0].composition;
+        satellite.size = results.rows[0].size;
+        satellite.weight = results.rows[0].weight;
+    });
+    // Query do planeta
+    client.query('SELECT p.name, p.planet_id, p.composition, p.size, p.weight, p.rotation_speed, p.has_satellite FROM planet AS p JOIN (satellite_planet AS sp JOIN satellite AS s USING (satellite_id)) USING (planet_id) WHERE satellite_id = $1',
+    [satelliteId],
+    (error, results) => {
+        if (error){
+            throw error;
+        }
+        satellite.planets = results.rows;
+    });
+    // Query da estrela
+    client.query('SELECT s.name, s.star_id, s.size, s.age, s.earth_distance, s.has_satellite, s.is_blackhole, s.is_dead FROM star AS s JOIN (satellite_star AS ss JOIN satellite AS sat USING(satellite_id)) USING (star_id) WHERE satellite_id = $1',
+    [satelliteId],
+    (error, results) => {
+        if (error){
+            throw error;
+        }
+        satellite.stars = results.rows;
+        res.status(200).send(satellite);
     });
 };
 
 const createSatellite = (req, res) => {
-    const size = parseInt(req.params.size);
-    const weight = parseInt(req.params.weight);
+    let size = parseInt(req.body.size);
+    let weight = parseInt(req.body.weight);
     const {name, composition} = req.body;
 
-    client.query('INSERT INTO satellite (name, composition, size, weight) VALUES ($1, $2, $3, $4)', [name, composition, size, weight], 
-    (error, results) => {
-        if (error){
-            throw error;
-        }
-        res.status(201).send(`Satellite added with Id: ${result.insertID}`);
-    });
+    if (isNaN(size)){
+        size = null;
+    }
+    if (isNaN(weight)){
+        weight = null;
+    }
+    if (name != null){
+        client.query('INSERT INTO satellite (name, composition, size, weight) VALUES ($1, $2, $3, $4)',
+        [name, composition, size, weight], 
+        (error, results) => {
+            if (error){
+                throw error;
+            }
+            res.status(201).send(`Satellite added with Id: ${results.oid}`);
+        });
+    } else {
+        res.send(401).send("Name cannot be null!");
+    }
 };
 
 const updateSatellite = (req, res) => {
-    const satelliteId = parseInt(req.params.satelliteId);
-    const size = parseInt(req.params.size);
-    const weight = parseInt(req.params.weight);
-    const {name, composition, hasSatelite} = req.body;
+    const satelliteId = parseInt(req.params.id);
+    let size = parseInt(req.body.size);
+    let weight = parseInt(req.body.weight);
+    const {name, composition} = req.body;
 
-    client.query('UPADATE satellite SET name = $1, composition = $2, size = $3, weight = $4, WHERE satelliteId = $5', [name, composition, size, weight, satelliteId],
-    (error, results) => {
-        if (error){
-            throw error;
-        }
-        res.status(200).send(`Satellite with id ${satelliteId} modified`);
-    });
+    if (isNaN(size)){
+        size = null;
+    }
+    if (isNaN(weight)){
+        weight = null;
+    }
+    if (name != null){
+        client.query('UPADATE satellite SET name = $1, composition = $2, size = $3, weight = $4, WHERE satellite_id = $5',
+        [name, composition, size, weight, satelliteId],
+        (error, results) => {
+            if (error){
+                throw error;
+            }
+            res.status(200).send(`Satellite with id ${satelliteId} modified`);
+        });
+    } else {
+        res.status(401).send("Name cannot be null!");
+    }
 };
 
 const deleteSatellite = (req, res) => {
-    const satelliteId = parseInt(req.params.satelliteId);
+    const satelliteId = parseInt(req.params.id);
 
-    client.query('DELETE FROM satellite WHERE satelliteId = $1' [satelliteId],
+    client.query('DELETE FROM satellite WHERE satellite_id = $1',
+    [satelliteId],
     (error, results) => {
         if (error){
             throw error;
