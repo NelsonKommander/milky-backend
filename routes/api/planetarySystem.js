@@ -18,8 +18,8 @@ const getSystems = (req, res) => {
 
 const getSystemById = (req, res) => {
     const id = parseInt(req.params.id);
-    var system = {"systemId": id, "name": "", "age": 0, "numOfPlanets": 0, "numOfStars": 0, "planets": [], "stars": []};
-    client.query('SELECT * FROM planetarySystem WHERE system_id = $1',
+    var system = {"systemId": id, "name": "", "age": 0, "numOfPlanets": 0, "numOfStars": 0, "myGalaxyName": "", "myGalaxyId": 0,"planets": [], "stars": []};
+    client.query('SELECT ps.name, ps.age, ps.num_of_planets, ps.num_of_stars, galaxy_id, g.name AS galaxy_name FROM planetarySystem AS ps JOIN galaxy AS g USING (galaxy_id) WHERE system_id = $1',
     [id],
     (error, results) => {
         if (error){
@@ -28,7 +28,9 @@ const getSystemById = (req, res) => {
         system.name = results.rows[0].name;
         system.age = results.rows[0].age;
         system.numOfPlanets = results.rows[0].num_of_planets;
-        system.numOfStars = results.rows[0].numOfStars;
+        system.numOfStars = results.rows[0].num_of_stars;
+        system.myGalaxyId = results.rows[0].galaxy_id;
+        system.myGalaxyName = results.rows[0].galaxy_name;
     });
     // Query dos planetas
     client.query('SELECT p.planet_id, p.size, p.weight, p.rotation_speed, p.has_satellite, p.name, p.composition FROM planet AS p JOIN (planet_in_system AS pin JOIN planetarysystem AS ps USING (system_id)) USING (planet_id) WHERE system_id = $1',
