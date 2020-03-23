@@ -67,13 +67,13 @@ const createPlanet = (req, res) => {
     const {name, composition, hasSatellite} = req.body;
 
     if (isNaN(size)){
-        size = -1;
+        size = null;
     }
     if (isNaN(weight)){
-        weight = -1;
+        weight = null;
     }
     if (isNaN(rotationSpeed)){
-        rotationSpeed = -1;
+        rotationSpeed = null;
     }
     if (name != null){
         client.query('INSERT INTO planet (name, composition, has_satellite, size, weight, rotation_speed) VALUES ($1, $2, $3, $4, $5, $6)',
