@@ -5,6 +5,15 @@ const client = new Client({
     ssl: true,
 });
 
+const Pool = require('pg').Pool;
+const client = new Pool({
+    user: 'kommander',
+    password: 'Kommander030500',
+    host: 'localhost',
+    database: 'api',
+    port: 5432
+});
+
 client.connect();
 
 const getPlanets = (req, res) => {
