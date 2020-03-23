@@ -106,7 +106,7 @@ const updatePlanet = (req, res) => {
         rotationSpeed = null;
     }
     if (name != null){
-        client.query('UPADATE planet SET name = $1, composition = $2, has_satellite = $3, size = $4, weight = $5, rotation_speed = $6 WHERE planet_id = $7',
+        client.query('UPDATE planet SET name = $1, composition = $2, has_satellite = $3, size = $4, weight = $5, rotation_speed = $6 WHERE planet_id = $7',
         [name, composition, hasSatellite, size, weight, rotationSpeed, planetId],
         (error, results) => {
             if (error){
