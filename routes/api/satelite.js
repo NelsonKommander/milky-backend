@@ -53,8 +53,8 @@ const getSatelliteById = (req, res) => {
 };
 
 const createSatellite = (req, res) => {
-    let size = parseInt(req.body.size);
-    let weight = parseInt(req.body.weight);
+    let size = parseFloat(req.body.size);
+    let weight = parseFloat(req.body.weight);
     const {name, composition} = req.body;
 
     if (isNaN(size)){
@@ -79,8 +79,8 @@ const createSatellite = (req, res) => {
 
 const updateSatellite = (req, res) => {
     const satelliteId = parseInt(req.params.id);
-    let size = parseInt(req.body.size);
-    let weight = parseInt(req.body.weight);
+    let size = parseFloat(req.body.size);
+    let weight = parseFloat(req.body.weight);
     const {name, composition} = req.body;
 
     if (isNaN(size)){

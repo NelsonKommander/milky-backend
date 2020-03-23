@@ -5,15 +5,6 @@ const client = new Client({
     ssl: true,
 });
 
-const Pool = require('pg').Pool;
-const client = new Pool({
-    user: 'kommander',
-    password: 'Kommander030500',
-    host: 'localhost',
-    database: 'api',
-    port: 5432
-});
-
 client.connect();
 
 const getPlanets = (req, res) => {
@@ -70,9 +61,9 @@ const getPlanetById = (req, res) => {
 };
 
 const createPlanet = (req, res) => {
-    let size = parseInt(req.body.size);
-    let weight = parseInt(req.body.weight);
-    let rotationSpeed = parseInt(req.body.rotationSpeed);
+    let size = parseFloat(req.body.size);
+    let weight = parseFloat(req.body.weight);
+    let rotationSpeed = parseFloat(req.body.rotationSpeed);
     const {name, composition, hasSatellite} = req.body;
 
     if (isNaN(size)){
@@ -100,9 +91,9 @@ const createPlanet = (req, res) => {
 
 const updatePlanet = (req, res) => {
     const planetId = parseInt(req.params.id);
-    let size = parseInt(req.body.size);
-    let weight = parseInt(req.body.weight);
-    let rotationSpeed = parseInt(req.body.rotationSpeed);
+    let size = parseFloat(req.body.size);
+    let weight = parseFloat(req.body.weight);
+    let rotationSpeed = parseFloat(req.body.rotationSpeed);
     const {name, composition, hasSatellite} = req.body;
 
     if (isNaN(size)){

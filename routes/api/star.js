@@ -61,8 +61,8 @@ const getStarById = (req, res) => {
 };
 
 const createStar = (req, res) => {
-    let size = parseInt(req.body.size);
-    let earthDistance = parseInt(req.body.earthDistance);
+    let size = parseFloat(req.body.size);
+    let earthDistance = parseFloat(req.body.earthDistance);
     let age = parseInt(req.body.age);
     const {name, starType, hasSatellite, isDead, isBlackhole} = req.body;
 
@@ -96,8 +96,8 @@ const createStar = (req, res) => {
 
 const updateStar = (req, res) => {
     const starId = parseInt(req.params.id);
-    let size = parseInt(req.body.size);
-    let earthDistance = parseInt(req.body.earthDistance);
+    let size = parseFloat(req.body.size);
+    let earthDistance = parseFloat(req.body.earthDistance);
     let age = parseInt(req.body.age);
     const {name, starType, hasSatellite, isDead, isBlackhole} = req.body;
 

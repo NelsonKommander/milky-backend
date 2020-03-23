@@ -41,7 +41,7 @@ const getGalaxyById = (req, res) => {
 
 const createGalaxy = (req, res) => {
     let numOfSystems = parseInt(req.body.numOfSystems);
-    let earthDistance = parseInt(req.body.earthDistance);
+    let earthDistance = parseFloat(req.body.earthDistance);
     const {name} = req.body;
 
     if (isNaN(numOfSystems)){
@@ -68,7 +68,7 @@ const createGalaxy = (req, res) => {
 const updateGalaxy = (req, res) => {
     const galaxyId = parseInt(req.params.id);
     let numOfSystems = parseInt(req.body.numOfSystems);
-    let earthDistance = parseInt(req.body.earthDistance);
+    let earthDistance = parseFloat(req.body.earthDistance);
     const {name} = req.body;
 
     if (isNaN(numOfSystems)){
