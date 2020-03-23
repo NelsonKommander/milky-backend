@@ -125,10 +125,10 @@ const deleteSystem = (req, res) => {
     });
 };
 
-router.get('/planetarySystems/', (req, res) => getSystems(req, res));
-router.get('/planetarySystems/:id', (req, res) => getSystemById(req, res));
-router.post('/planetarySystems/', (req, res) => createSystem(req, res));
-router.put('/planetarySystems/:id', (req, res) => updateSystem(req, res));
-router.delete('/planetarySystems/:id', (req, res) => deleteSystem(req, res));
+router.get('/planetarySystem/', (req, res) => getSystems(req, res));
+router.get('/planetarySystem/:id', (req, res) => getSystemById(req, res));
+router.post('/planetarySystem/', (req, res) => createSystem(req, res));
+router.put('/planetarySystem/:id', (req, res) => updateSystem(req, res));
+router.delete('/planetarySystem/:id', (req, res) => deleteSystem(req, res));
 
 module.exports = router;
