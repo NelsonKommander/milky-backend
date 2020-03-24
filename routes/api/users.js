@@ -52,7 +52,7 @@ const createUser = (req, res) => {
 };
 
 const updateUser = (req, res) => {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(req.params.id);
     const {name, email, password} = req.body;
     if (name != null && email != null && password != null && password != ""){
         bcrypt.genSalt(10, function(err, salt){

@@ -122,7 +122,7 @@ const updatePlanet = (req, res) => {
 };
 
 const deletePlanet = (req, res) => {
-    const planetId = parseInt(req.params.planetId);
+    const planetId = parseInt(req.params.id);
 
     client.query('DELETE FROM planet WHERE planet_id = $1',
     [planetId],
