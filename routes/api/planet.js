@@ -90,8 +90,6 @@ const createPlanet = (req, res) => {
 };
 
 const updatePlanet = (req, res) => {
-    console.log("Seu JSON aí Allan: ");
-    console.log(req.body);
     const planetId = parseInt(req.params.id);
     let size = parseFloat(req.body.size);
     let weight = parseFloat(req.body.weight);
